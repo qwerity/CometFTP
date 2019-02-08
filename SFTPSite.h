@@ -30,6 +30,8 @@ private:
     int sftp_getAllFiles(QString path, QString destination);
     ssh_session my_ssh_session;
     sftp_session sftp;
+
+
     int verify_knownhost();
     int verify_user(std::string user, std::string pass);
     int silent_verify_knownhost();

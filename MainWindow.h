@@ -15,7 +15,7 @@
 #include "StatusArea.h"
 #include "SlidingStackedWidget.h"
 #include "DownloadManager.h"
-#include "About.h";
+#include "About.h"
 
 class MainWindow : public QFrame
 {

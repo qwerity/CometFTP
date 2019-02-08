@@ -99,16 +99,38 @@ bool SFTPSite::init()
 
 }
 
+int storeBinaryOfKey(ssh_session session, unsigned char **hash, size_t *hlen)
+{
+    ssh_key srv_pubkey;
+    int rc;
+
+    rc = ssh_get_server_publickey(session, &srv_pubkey);
+    if (rc < 0) {
+        return -1;
+    }
+
+    rc = ssh_get_publickey_hash(srv_pubkey,
+                                SSH_PUBLICKEY_HASH_SHA1,
+                                hash,
+                                hlen);
+    ssh_key_free(srv_pubkey);
+    if (rc < 0) {
+        return -1;
+    }
+
+
+    return 0;
+}
 // Verify Host using SSH Key
 int SFTPSite::verify_knownhost()
 {
 
-    int state, hlen, rc;
+    int state, rc;
+    size_t hlen = 0;
     unsigned char *hash = NULL;
     QMessageBox msgBox;
     state = ssh_is_server_known(my_ssh_session); // Check if key known
-    hlen = ssh_get_pubkey_hash(my_ssh_session, &hash); //store binary of key
-    if (hlen < 0){return -1;} // Check key is a key
+    if (storeBinaryOfKey(my_ssh_session, &hash, &hlen) < 0) {return -1;} // Check key is a key
     char *publickeyhash = ssh_get_hexa(hash,hlen);
     QString pubkey(publickeyhash);
 
@@ -224,12 +246,13 @@ int SFTPSite::verify_knownhost()
 // Silent verify for already verififed sites
 int SFTPSite::silent_verify_knownhost()
 {
-    int state, hlen, rc;
+    int state;
+    size_t hlen = 0;
     unsigned char *hash = NULL;
+
     //QMessageBox msgBox;
     state = ssh_is_server_known(my_ssh_session); // Check if key known
-    hlen = ssh_get_pubkey_hash(my_ssh_session, &hash); //store binary of key
-    if (hlen < 0){return -1;} // Check key is a key
+    if (storeBinaryOfKey(my_ssh_session, &hash, &hlen) < 0) {return -1;} // Check key is a key
     char *publickeyhash = ssh_get_hexa(hash,hlen);
     QString pubkey(publickeyhash);
 
